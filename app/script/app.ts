@@ -1,36 +1,50 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
+
+//å¼•å…¥è¾“å…¥component
+import {InputItem} from './inputItem';
 import {CheckableItem, Item} from './checkableItem';
-//ÉùÃ÷µÚÒ»¸öcomponent
+//å¼•å…¥æ€»ç»“component
+import {Counter} from './counter';
+
 @Component({
     selector: 'my-app',
-    template: '<h1>My First Angular 2 App</h1><checkable-item [item]="itemInfo" (onItemClicked)="toggle($event)"></checkable-item>',
-	directives: [CheckableItem]
+    template: `
+    <h1>My First Angular 2 App</h1>
+    <!--
+        åœ¨templateé‡Œï¼Œå¢åŠ input-itemå’Œcounterçš„ä½¿ç”¨
+        input-itemé‡Œï¼Œæ•è·onItemAddedäº‹ä»¶ï¼Œä¼ é€’ç»™addItemæ–¹æ³•
+    -->
+    <input-item (onItemAdded)="addItem($event)"></input-item>
+    <!--
+        ä½¿ç”¨*ngForéå†itemså˜é‡ã€‚è¯¦æƒ…:
+        https://angular.io/docs/ts/latest/guide/template-syntax.html#!#ngFor
+    -->
+    <checkable-item *ngFor="let itemInfo of items; let i = index" [item]="itemInfo" (onItemClicked)="toggle($event, i)">
+    </checkable-item>
+    <!--
+        counteré‡Œï¼Œä¼ å…¥items
+    -->
+    <counter [items]="items"></counter>
+    `,
+    directives: [InputItem, CheckableItem, Counter]
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
+    //å£°æ˜itemsä¸ºæˆå‘˜å˜é‡
+    items: Item[] = [];
 
-    itemInfo: Item;
-
-    //µ±ÊµÏÖOnInit½Ó¿ÚÊ±£¬±ØĞëÖØĞ´ngOnInit·½·¨
-    //¹ØÓÚOnInit£¬Ïê¼û£º
-    //https://angular.io/docs/ts/latest/guide/lifecycle-hooks.html#!#hooks-overview
-    ngOnInit() {
-        //Éè¶¨³õÊ¼Öµ
-        //¸ù¾İĞèÇóµÚ1Ìõ£¬°üº¬Á½¸öÊôĞÔ
-        this.itemInfo = {
-            isChecked: false,
-            txt: 'Hello World!'
-        };
+    //å½“æ•è·åˆ°onItemAddedäº‹ä»¶æ—¶ï¼Œè°ƒç”¨è¯¥æ–¹æ³•ï¼Œæ·»åŠ æ–°itemåˆ°itemsé‡Œ
+    //æ³¨ï¼šæ ¹æ®Immutableç­–ç•¥ï¼Œç”Ÿæˆæ–°çš„items
+    addItem(item: Item) {
+        this.items = [...this.items, item];
     }
 
-    //¸ù¾İĞèÇóµÚ3Ìõ£¬µã»÷componentºó£¬ÊÂ¼şÒª
-    //Ã°Åİµ½¸¸×é¼ş(µ÷ÓÃ·½)
-    toggle(item: Item) {
-        //µ±»ñÈ¡µ½CheckableItemµÄµã»÷ÊÂ¼şÊ±£¬
-        //¸øitemInfoÖØĞÂ¸³Öµ£¬²¢½«isCheckedÖÃ·´
-        //×¢£ºÖØĞÂ¸³ÖµÊÇ¸ù¾İĞèÇóµÚ4ÌõµÄ²»¿É±äĞÔ
-        this.itemInfo = {
-            isChecked: !item.isChecked,
-            txt: item.txt
-        };
+    //ç‚¹å‡»checkable-itemæ—¶ï¼Œç½®åå…¶isCheckedå±æ€§
+    //æ³¨ï¼šæ ¹æ®Immutableç­–ç•¥ï¼Œç”Ÿæˆæ–°çš„items
+    toggle(item: Item, index: number) {
+        this.items = [
+            ...this.items.slice(0, index),
+            { isChecked: !item.isChecked, txt: item.txt },
+            ...this.items.slice(index + 1)
+        ];
     }
 }

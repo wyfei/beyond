@@ -1,20 +1,20 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
-    //Ôà¼ì²é²ßÂÔ£¬OnPushÖ¸µ±ÇÒ½öµ±´«Èë²ÎÊıµÄreference·¢Éú±ä¸üÊ±
-    //´¥·¢×é¼şÖØ»æ¡£ÕâºÍReactÖĞµÄshouldComponentUpdateÒìÇúÍ¬¹¤£¬
-    //²»¹ı¸üÏÈ½ø(ÒòÎªReact»¹ÊÇĞèÒªÊÖ¶¯ÊµÏÖµÄ)
-    //ÕâÒ²ÊÇÉÏÒ»²½ÀïitemInfo±ØĞëÖØĞÂ¸³ÖµµÄÔ­Òò
+    //è„æ£€æŸ¥ç­–ç•¥ï¼ŒOnPushæŒ‡å½“ä¸”ä»…å½“ä¼ å…¥å‚æ•°çš„referenceå‘ç”Ÿå˜æ›´æ—¶
+    //è§¦å‘ç»„ä»¶é‡ç»˜ã€‚è¿™å’ŒReactä¸­çš„shouldComponentUpdateå¼‚æ›²åŒå·¥ï¼Œ
+    //ä¸è¿‡æ›´å…ˆè¿›(å› ä¸ºReactè¿˜æ˜¯éœ€è¦æ‰‹åŠ¨å®ç°çš„)
+    //è¿™ä¹Ÿæ˜¯ä¸Šä¸€æ­¥é‡ŒitemInfoå¿…é¡»é‡æ–°èµ‹å€¼çš„åŸå› 
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'checkable-item',
-    //½öÔÚµ±Ç°component×÷ÓÃÓòÏÂÓĞĞ§µÄclass
+    //ä»…åœ¨å½“å‰componentä½œç”¨åŸŸä¸‹æœ‰æ•ˆçš„class
     styles: [`
         .deleted{
             text-decoration: line-through;
         }
     `],
-    //template¾ÍÈçÎÒÃÇĞèÇóÀïµÄÃèÊöÄÇÑù£¬ÓÉÒ»¸öinput±êÇ©ºÍ
-    //Ò»¸ölabel±êÇ©×é³É
+    //templateå°±å¦‚æˆ‘ä»¬éœ€æ±‚é‡Œçš„æè¿°é‚£æ ·ï¼Œç”±ä¸€ä¸ªinputæ ‡ç­¾å’Œ
+    //ä¸€ä¸ªlabelæ ‡ç­¾ç»„æˆ
     template: `
     <div>
         <input type="checkbox" [ngModel]="item.isChecked" (click)="clickItem($event)">
@@ -23,15 +23,15 @@ import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@
     `
 })
 export class CheckableItem {
-    //item±»ÉùÃ÷ÎªInput£¬¼´»áÔÚ¸¸×é¼ş´«Èë²ÎÊıÊ±ÓÃµ½
+    //itemè¢«å£°æ˜ä¸ºInputï¼Œå³ä¼šåœ¨çˆ¶ç»„ä»¶ä¼ å…¥å‚æ•°æ—¶ç”¨åˆ°
     @Input() item: Item;
-    //onItemClicked±»ÉùÃ÷ÎªOutput£¬ÓÃÀ´ÔÚÓÃ»§µã»÷input±êÇ©
-    //Ê±ÏòÉÏÃ°ÅİÊÂ¼ş
+    //onItemClickedè¢«å£°æ˜ä¸ºOutputï¼Œç”¨æ¥åœ¨ç”¨æˆ·ç‚¹å‡»inputæ ‡ç­¾
+    //æ—¶å‘ä¸Šå†’æ³¡äº‹ä»¶
     @Output() onItemClicked = new EventEmitter();
 
-    //¼àÌıinputÉÏµÄclickÊÂ¼ş£¬µ±ÓÃ»§µã»÷Ê±£¬Ê×ÏÈ×èÖ¹Ä¬ÈÏĞĞÎª
-    //ÒòÎªÊÇ·ñ±ä»¯(ÖØ»æ)ÊÇÓÉ¸¸×é¼ş¾ö¶¨µÄ
-    //È»ºóÃ°Åİµã»÷ÊÂ¼ş
+    //ç›‘å¬inputä¸Šçš„clickäº‹ä»¶ï¼Œå½“ç”¨æˆ·ç‚¹å‡»æ—¶ï¼Œé¦–å…ˆé˜»æ­¢é»˜è®¤è¡Œä¸º
+    //å› ä¸ºæ˜¯å¦å˜åŒ–(é‡ç»˜)æ˜¯ç”±çˆ¶ç»„ä»¶å†³å®šçš„
+    //ç„¶åå†’æ³¡ç‚¹å‡»äº‹ä»¶
     clickItem(e: MouseEvent) {
         e.preventDefault();
         this.onItemClicked.emit(this.item);

@@ -45496,38 +45496,33 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(32);
-	var checkableItem_1 = __webpack_require__(306);
-	//������һ��component
+	//引入输入component
+	var inputItem_1 = __webpack_require__(306);
+	var checkableItem_1 = __webpack_require__(307);
+	//引入总结component
+	var counter_1 = __webpack_require__(308);
 	var AppComponent = (function () {
 	    function AppComponent() {
+	        //声明items为成员变量
+	        this.items = [];
 	    }
-	    //��ʵ��OnInit�ӿ�ʱ��������дngOnInit����
-	    //����OnInit��������
-	    //https://angular.io/docs/ts/latest/guide/lifecycle-hooks.html#!#hooks-overview
-	    AppComponent.prototype.ngOnInit = function () {
-	        //�趨��ʼֵ
-	        //����������1����������������
-	        this.itemInfo = {
-	            isChecked: false,
-	            txt: 'Hello World!'
-	        };
+	    //当捕获到onItemAdded事件时，调用该方法，添加新item到items里
+	    //注：根据Immutable策略，生成新的items
+	    AppComponent.prototype.addItem = function (item) {
+	        this.items = this.items.concat([item]);
 	    };
-	    //����������3��������component�����¼�Ҫ
-	    //ð�ݵ�������(���÷�)
-	    AppComponent.prototype.toggle = function (item) {
-	        //����ȡ��CheckableItem�ĵ����¼�ʱ��
-	        //��itemInfo���¸�ֵ������isChecked�÷�
-	        //ע�����¸�ֵ�Ǹ���������4���Ĳ��ɱ���
-	        this.itemInfo = {
-	            isChecked: !item.isChecked,
-	            txt: item.txt
-	        };
+	    //点击checkable-item时，置反其isChecked属性
+	    //注：根据Immutable策略，生成新的items
+	    AppComponent.prototype.toggle = function (item, index) {
+	        this.items = this.items.slice(0, index).concat([
+	            { isChecked: !item.isChecked, txt: item.txt }
+	        ], this.items.slice(index + 1));
 	    };
 	    AppComponent = __decorate([
 	        core_1.Component({
 	            selector: 'my-app',
-	            template: '<h1>My First Angular 2 App</h1><checkable-item [item]="itemInfo" (onItemClicked)="toggle($event)"></checkable-item>',
-	            directives: [checkableItem_1.CheckableItem]
+	            template: "\n    <h1>My First Angular 2 App</h1>\n    <!--\n        \u5728template\u91CC\uFF0C\u589E\u52A0input-item\u548Ccounter\u7684\u4F7F\u7528\n        input-item\u91CC\uFF0C\u6355\u83B7onItemAdded\u4E8B\u4EF6\uFF0C\u4F20\u9012\u7ED9addItem\u65B9\u6CD5\n    -->\n    <input-item (onItemAdded)=\"addItem($event)\"></input-item>\n    <!--\n        \u4F7F\u7528*ngFor\u904D\u5386items\u53D8\u91CF\u3002\u8BE6\u60C5:\n        https://angular.io/docs/ts/latest/guide/template-syntax.html#!#ngFor\n    -->\n    <checkable-item *ngFor=\"let itemInfo of items; let i = index\" [item]=\"itemInfo\" (onItemClicked)=\"toggle($event, i)\">\n    </checkable-item>\n    <!--\n        counter\u91CC\uFF0C\u4F20\u5165items\n    -->\n    <counter [items]=\"items\"></counter>\n    ",
+	            directives: [inputItem_1.InputItem, checkableItem_1.CheckableItem, counter_1.Counter]
 	        }), 
 	        __metadata('design:paramtypes', [])
 	    ], AppComponent);
@@ -45551,15 +45546,65 @@
 	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 	};
 	var core_1 = __webpack_require__(32);
+	var InputItem = (function () {
+	    function InputItem() {
+	        //向外部冒泡的事件
+	        this.onItemAdded = new core_1.EventEmitter();
+	    }
+	    //无论点击button、还是敲击回车键，都处罚添加事件
+	    //组装一个新的item对象，
+	    //清空text
+	    InputItem.prototype.onSubmit = function () {
+	        this.onItemAdded.emit({
+	            isChecked: false,
+	            txt: this.text
+	        });
+	        this.text = '';
+	    };
+	    __decorate([
+	        core_1.Output(), 
+	        __metadata('design:type', Object)
+	    ], InputItem.prototype, "onItemAdded", void 0);
+	    InputItem = __decorate([
+	        core_1.Component({
+	            //这里仍然使用OnPush策略
+	            changeDetection: core_1.ChangeDetectionStrategy.OnPush,
+	            selector: 'input-item',
+	            //template里包含一个input[type="text"]和button
+	            //外面又一个form标签是因为需求中希望回车键也可以触发操作
+	            template: "\n    <form (ngSubmit)=\"onSubmit()\">\n        <input type=\"text\" [(ngModel)]=\"text\">\n        <button type=\"submit\">Add Item</button>\n    </form>\n    "
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], InputItem);
+	    return InputItem;
+	}());
+	exports.InputItem = InputItem;
+
+
+/***/ },
+/* 307 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(32);
 	var CheckableItem = (function () {
 	    function CheckableItem() {
-	        //onItemClicked������ΪOutput���������û�����input��ǩ
-	        //ʱ����ð���¼�
+	        //onItemClicked被声明为Output，用来在用户点击input标签
+	        //时向上冒泡事件
 	        this.onItemClicked = new core_1.EventEmitter();
 	    }
-	    //����input�ϵ�click�¼������û�����ʱ��������ֹĬ����Ϊ
-	    //��Ϊ�Ƿ��仯(�ػ�)���ɸ�����������
-	    //Ȼ��ð�ݵ����¼�
+	    //监听input上的click事件，当用户点击时，首先阻止默认行为
+	    //因为是否变化(重绘)是由父组件决定的
+	    //然后冒泡点击事件
 	    CheckableItem.prototype.clickItem = function (e) {
 	        e.preventDefault();
 	        this.onItemClicked.emit(this.item);
@@ -45574,16 +45619,16 @@
 	    ], CheckableItem.prototype, "onItemClicked", void 0);
 	    CheckableItem = __decorate([
 	        core_1.Component({
-	            //���������ԣ�OnPushָ���ҽ�������������reference��������ʱ
-	            //���������ػ档����React�е�shouldComponentUpdate����ͬ����
-	            //�������Ƚ�(��ΪReact������Ҫ�ֶ�ʵ�ֵ�)
-	            //��Ҳ����һ����itemInfo�������¸�ֵ��ԭ��
+	            //脏检查策略，OnPush指当且仅当传入参数的reference发生变更时
+	            //触发组件重绘。这和React中的shouldComponentUpdate异曲同工，
+	            //不过更先进(因为React还是需要手动实现的)
+	            //这也是上一步里itemInfo必须重新赋值的原因
 	            changeDetection: core_1.ChangeDetectionStrategy.OnPush,
 	            selector: 'checkable-item',
-	            //���ڵ�ǰcomponent����������Ч��class
+	            //仅在当前component作用域下有效的class
 	            styles: ["\n        .deleted{\n            text-decoration: line-through;\n        }\n    "],
-	            //template����������������������������һ��input��ǩ��
-	            //һ��label��ǩ����
+	            //template就如我们需求里的描述那样，由一个input标签和
+	            //一个label标签组成
 	            template: "\n    <div>\n        <input type=\"checkbox\" [ngModel]=\"item.isChecked\" (click)=\"clickItem($event)\">\n        <label [class.deleted]=\"item.isChecked\">{{ item.txt }}</label>\n    </div>\n    "
 	        }), 
 	        __metadata('design:paramtypes', [])
@@ -45591,6 +45636,51 @@
 	    return CheckableItem;
 	}());
 	exports.CheckableItem = CheckableItem;
+
+
+/***/ },
+/* 308 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+	    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+	    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+	    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+	    return c > 3 && r && Object.defineProperty(target, key, r), r;
+	};
+	var __metadata = (this && this.__metadata) || function (k, v) {
+	    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+	};
+	var core_1 = __webpack_require__(32);
+	var Counter = (function () {
+	    function Counter() {
+	    }
+	    //每次当参数items的reference发生变化时，触发该方法
+	    //获取新的length、postFix，重绘组件
+	    //这里和React中的componentWillUpdate很相似
+	    Counter.prototype.ngOnChanges = function (changes) {
+	        var newItems = changes['items'].currentValue;
+	        this.length = newItems.reduce(function (p, item) { return p + (item.isChecked ? 0 : 1); }, 0);
+	        this.postFix = this.length > 1 ? 's' : '';
+	    };
+	    __decorate([
+	        core_1.Input(), 
+	        __metadata('design:type', Array)
+	    ], Counter.prototype, "items", void 0);
+	    Counter = __decorate([
+	        core_1.Component({
+	            //这里仍然使用OnPush策略
+	            changeDetection: core_1.ChangeDetectionStrategy.OnPush,
+	            selector: 'counter',
+	            //template包含一个span
+	            template: "\n    <span>\n        We have {{ length }} item{{ postFix }}\n    </span>\n    "
+	        }), 
+	        __metadata('design:paramtypes', [])
+	    ], Counter);
+	    return Counter;
+	}());
+	exports.Counter = Counter;
 
 
 /***/ }
